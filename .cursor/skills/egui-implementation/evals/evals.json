@@ -1,0 +1,23 @@
+{
+  "skill_name": "egui-implementation",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I need to set up the egui editor for my Quaker Waker plugin. The editor/mod.rs is empty right now and I have no GUI dependencies. Please wire up nih_plug_egui, add the dependency to Cargo.toml, and create a basic working editor with a gain slider and a peak meter. The plugin struct and params are in src/lib.rs and src/params.rs.",
+      "expected_output": "Working editor module with create_egui_editor, EguiState in params, Cargo.toml dependency added, ParamSlider for gain, peak meter using AtomicF32, proper thread-safe data sharing",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Build me a custom rotary knob widget for my egui plugin editor. It should look like a professional audio knob with an arc indicator showing the current value, respond to vertical drag to change the value, and properly bind to a nih-plug FloatParam using the setter protocol. I want to be able to drop it in anywhere I have a parameter.",
+      "expected_output": "Reusable knob widget function or struct that takes a FloatParam + ParamSetter, draws an arc-based knob using egui Painter, handles drag interaction, calls begin/end set_parameter correctly, and is visually polished",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a real-time waveform display to my plugin editor that shows the audio signal as it plays. It needs to be performant — no audio thread blocking, proper lock-free data sharing, and it should only repaint when the editor is actually open. Show me the full implementation including the shared buffer, the audio thread side, and the egui drawing code.",
+      "expected_output": "Complete waveform implementation with: lock-free shared buffer between audio and GUI threads, conditional computation based on editor_state.is_open(), Painter-based waveform drawing, request_repaint for animation, proper ring buffer or snapshot pattern",
+      "files": []
+    }
+  ]
+}
