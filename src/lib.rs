@@ -5,16 +5,19 @@ mod dsp;
 mod editor;
 mod params;
 
+use dsp::WaveformBuffer;
 use params::GainParams;
 
 struct Gain {
     params: Arc<GainParams>,
+    waveform_buffer: Arc<WaveformBuffer>,
 }
 
 impl Default for Gain {
     fn default() -> Self {
         Self {
             params: Arc::new(GainParams::default()),
+            waveform_buffer: WaveformBuffer::new(),
         }
     }
 }
@@ -51,6 +54,10 @@ impl Plugin for Gain {
         self.params.clone()
     }
 
+    fn editor(&mut self, _async_executor: AsyncExecutor<Self>) -> Option<Box<dyn Editor>> {
+        editor::create(self.params.clone(), self.waveform_buffer.clone())
+    }
+
     fn initialize(
         &mut self,
         _audio_io_layout: &AudioIOLayout,
@@ -60,7 +67,9 @@ impl Plugin for Gain {
         true
     }
 
-    fn reset(&mut self) {}
+    fn reset(&mut self) {
+        self.waveform_buffer.clear();
+    }
 
     fn process(
         &mut self,
@@ -68,11 +77,21 @@ impl Plugin for Gain {
         _aux: &mut AuxiliaryBuffers,
         _context: &mut impl ProcessContext<Self>,
     ) -> ProcessStatus {
+        let editor_open = self.params.editor_state.is_open();
+
         for channel_samples in buffer.iter_samples() {
             let gain = self.params.gain.smoothed.next();
+            let mut first_sample = 0.0_f32;
 
-            for sample in channel_samples {
+            for (i, sample) in channel_samples.into_iter().enumerate() {
                 *sample *= gain;
+                if i == 0 {
+                    first_sample = *sample;
+                }
+            }
+
+            if editor_open {
+                self.waveform_buffer.push(first_sample);
             }
         }
 
@@ -106,4 +125,5 @@ impl ClapPlugin for Gain {
     ];
 }
 
+nih_export_clap!(Gain);
 nih_export_vst3!(Gain);

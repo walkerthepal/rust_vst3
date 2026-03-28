@@ -1,7 +1,12 @@
 use nih_plug::prelude::*;
+use nih_plug_egui::EguiState;
+use std::sync::Arc;
 
 #[derive(Params)]
 pub struct GainParams {
+    #[persist = "editor-state"]
+    pub editor_state: Arc<EguiState>,
+
     /// Gain stored as linear gain, displayed in dB.
     /// Range: -30 dB to +30 dB with logarithmic smoothing for click-free automation.
     #[id = "gain"]
@@ -11,6 +16,7 @@ pub struct GainParams {
 impl Default for GainParams {
     fn default() -> Self {
         Self {
+            editor_state: EguiState::from_size(500, 340),
             gain: FloatParam::new(
                 "Gain",
                 util::db_to_gain(0.0),
